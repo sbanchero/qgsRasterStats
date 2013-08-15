@@ -1,0 +1,18 @@
+; the next section is mandatory
+[general]
+name=QgsSignatureRaster
+description=Signature Raster from Polygons
+
+version=0.2
+qgisMinimumVersion=2.0
+
+category=Plugin
+
+author=Santiago Banchero (INTA)
+email=banchero.santiago@inta.gob.ar
+
+tags=gdal
+
+icon=logo.png
+
+experimental=True
