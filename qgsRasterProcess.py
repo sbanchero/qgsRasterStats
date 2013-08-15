@@ -52,45 +52,28 @@ class RasterProcess:
                 cdo = self.command + [self.dir_raster + img, self.out + '.tif']
                 p = Popen(cdo, stdout=PIPE)
                 p.wait()
-                self.calc.clipper_process(name = img ,img_file_path = self.out + '.tif', id_clip = self.current_id_clip, NoData= self.NoData)
+                self.calc.clipper_process(name = img, img_file_path = self.out + '.tif', id_clip = self.current_id_clip, NoData= self.NoData)
         
         fout = open(self.out, 'w')
-        fout.write('raster id_poly band min max mean var\n')
-        for img in self.calc.results.keys():
-            for poly in self.calc.results[img].keys():
-                for b in self.calc.results[img][poly].keys():
-                    print img,poly, b, self.calc.results[img][poly][b]['min'],self.calc.results[img][poly][b]['max'],self.calc.results[img][poly][b]['mean'],self.calc.results[img][poly][b]['var']
-                    fout.write("%s %s %s %s %s %s %s\n" % (img, poly, b, self.calc.results[img][poly][b]['min'],self.calc.results[img][poly][b]['max'],self.calc.results[img][poly][b]['mean'],self.calc.results[img][poly][b]['var']))
+        fout.write('raster,id_poly,band,min,max,mean,var\n')
+        for img in self.calc.results:
+            fout.write("%s,%s,%s,%s,%s,%s,%s\n" % (tuple(img)))
         fout.close()
         
 class CalculateStats:
     def __init__(self):
-        self.results = {}
+        self.results = []
     
     def clipper_process(self, name = None, img_file_path = None, id_clip = None, NoData = None):
-        self.results[name] = {}
         self.ds = gdal.Open(img_file_path, gdal.GA_ReadOnly)
-        #print "TER:", id_clip
         for b in range(self.ds.RasterCount):
-            #print img_file_path,
             band = self.ds.GetRasterBand(b + 1)
             data = band.ReadAsArray()[band.ReadAsArray() <> NoData] #Filter NoData Values to do stats
-            #print "AVG",data.mean()
-            try:
-                self.results[name][id_clip][b + 1] = {}
-                self.results[name][id_clip][b + 1]['mean'] = data.mean()
-                self.results[name][id_clip][b + 1]['min'] = data.min()
-                self.results[name][id_clip][b + 1]['max'] = data.max()
-                self.results[name][id_clip][b + 1]['var'] = data.var()
-            except:
-                self.results[name][id_clip] = {}
-                self.results[name][id_clip][b + 1] = {}
-                self.results[name][id_clip][b + 1]['mean'] = data.mean()
-                self.results[name][id_clip][b + 1]['min'] = data.min()
-                self.results[name][id_clip][b + 1]['max'] = data.max()
-                self.results[name][id_clip][b + 1]['var'] = data.var()
 
-        print "TODO", self.results
+            self.results.append([name, id_clip, b + 1,  data.min(), data.max(), data.mean(),data.var()])
+            
+            print self.results
+        
 
 def main():
 	
