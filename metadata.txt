@@ -16,3 +16,4 @@ tags=gdal
 icon=logo.png
 
 experimental=True
+deprecated=False
